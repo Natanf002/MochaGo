@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import loginBg from "../assets/login-background-img.png";
-import axios from "../api/axios"; // make sure axios instance is configured correctly
+import axios from "../api/axios"; // make sure axios instance is configured correctly.
 
 const Login = () => {
   const [email, setEmail] = useState("");
