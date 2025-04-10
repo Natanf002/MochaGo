@@ -14,3 +14,19 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+<<<<<<< HEAD
+
+
+// Automatically attach token to all requests
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('mochago_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+=======
+>>>>>>> upstream/main
