@@ -13,7 +13,12 @@ dist
 .vite
 dist-ssr
 *.local
+
+# Don't commit uploaded photos
 /server/uploads/*
+# Keep folder
+!server/uploads/.gitkeep
+
 
 # Editor directories and files
 .vscode/*
