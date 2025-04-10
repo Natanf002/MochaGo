@@ -1,23 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaPhone, FaCreditCard, FaUpload } from 'react-icons/fa';
+import axios from '../api/axios';
 
 export default function Settings() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await axios.get('/auth/me');
+        setUser(res.data);
+      } catch (err) {
+        console.error('Failed to fetch user:', err);
+      }
+    }
+
+    fetchUser();
+  }, []);
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100vw' }}>
       {/* LEFT SIDE – Settings Form */}
       <div style={{ flex: 2, backgroundColor: '#050505', color: 'white', padding: '3rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>Settings</h1>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Email Address</label>
-          <div style={inputBoxStyle}>user@email.com</div>
+          <div style={inputBoxStyle}>{user?.email || 'Loading...'}</div>
           <button style={buttonStyle}><FaEnvelope style={iconStyle} /> Change Email</button>
         </div>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Phone Number</label>
-          <div style={inputBoxStyle}>Phone Number Ending in 4567</div>
+          <div style={inputBoxStyle}>{user?.phone ? `Ending in ${user.phone.slice(-4)}` : 'Loading...'}</div>
           <button style={buttonStyle}><FaPhone style={iconStyle} /> Change Phone Number</button>
         </div>
 
@@ -35,16 +52,53 @@ export default function Settings() {
       </div>
 
       {/* RIGHT SIDE – Profile Summary */}
-      <div style={{ flex: 1, backgroundColor: '#6A7D4F', color: 'white', padding: '3rem', textAlign: 'center' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <div style={{ width: '140px', height: '140px', borderRadius: '50%', backgroundColor: '#d9d9d9', margin: '0 auto' }}>
+      <div style={{
+        flex: 1,
+        backgroundColor: '#6A7D4F',
+        color: 'white',
+        padding: '3rem',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative'
+      }}>
+        {/* Logo top-right */}
+        <div
+          onClick={() => navigate('/')}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '2rem',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem'
+          }}
+        >
+          <span role="img" aria-label="coffee">☕</span> MochaGo
+        </div>
+
+        <div style={{ marginTop: '4rem', marginBottom: '2rem' }}>
+          <div style={{
+            width: '140px',
+            height: '140px',
+            borderRadius: '50%',
+            backgroundColor: '#d9d9d9',
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
               strokeWidth={1.5}
-              style={{ width: '100%', height: '100%', color: '#333', padding: '2rem' }}
+              style={{ width: '60%', height: '60%', color: '#333' }}
             >
               <path
                 strokeLinecap="round"
@@ -53,11 +107,13 @@ export default function Settings() {
               />
             </svg>
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>John Doe</h2>
-          <p style={{ color: '#ddd' }}>johndoe@gmail.com</p>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>
+            {user?.first_name || 'John'} {user?.last_name || 'Doe'}
+          </h2>
+          <p style={{ color: '#ddd' }}>{user?.email || 'johndoe@email.com'}</p>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', width: '100%' }}>
           <hr style={dividerStyle} />
           <Link to="/settings" style={navLinkStyle}>Settings</Link>
           <hr style={dividerStyle} />
@@ -70,6 +126,7 @@ export default function Settings() {
   );
 }
 
+// STYLES
 const inputBoxStyle = {
   backgroundColor: '#D9CDB4',
   padding: '1rem',
