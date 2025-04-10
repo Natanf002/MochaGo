@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/login-background-img.png';
-import axios from '../api/axios'; // Make sure you have your axios instance
+import axios from '../api/axios';
 
 export default function SignUp() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,7 +25,7 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setMessage("Passwords do not match");
+      setMessage("❌ Passwords do not match");
       return;
     }
 
@@ -39,12 +38,9 @@ export default function SignUp() {
         password: formData.password
       });
 
-      const token = res.data.token;
-      localStorage.setItem("mochago_token", token);
-      window.dispatchEvent(new Event("storage")); // Let listeners know user is logged in
-      navigate("/");
+      setMessage("✅ Account created successfully! You can now log in.");
     } catch (err) {
-      setMessage("Failed to register user");
+      setMessage("❌ Failed to register user. Email might already exist.");
     }
   };
 
@@ -70,7 +66,30 @@ export default function SignUp() {
           <input name="confirmPassword" type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={handleChange} style={inputStyle} required />
 
           <button type="submit" style={buttonStyle}>Sign Up</button>
-          {message && <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>{message}</p>}
+
+          {message && (
+            <div style={{ marginTop: "1rem", textAlign: "center" }}>
+              <p style={{ color: 'white', fontSize: '1rem' }}>{message}</p>
+              {message.includes("successfully") && (
+                <Link to="/login">
+                  <button
+                    style={{
+                      marginTop: "0.75rem",
+                      padding: "10px 24px",
+                      borderRadius: "20px",
+                      backgroundColor: "white",
+                      color: "#6A7D4F",
+                      fontWeight: "bold",
+                      border: "none",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Go to Login
+                  </button>
+                </Link>
+              )}
+            </div>
+          )}
         </form>
       </div>
 
@@ -91,7 +110,7 @@ export default function SignUp() {
         }}
       >
         <div style={{ textAlign: 'center', maxWidth: '80%' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>We have<br />met before right ?</h2>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>We have<br />met before right?</h2>
           <p style={{ fontSize: '1rem', marginBottom: '1rem' }}>
             Let's have matcha together!
           </p>
@@ -110,11 +129,10 @@ export default function SignUp() {
               fontSize: '1.1rem',
               border: 'none',
               cursor: 'pointer'
-                }}>
+            }}>
               Log In
             </button>
           </Link>
-
         </div>
       </div>
     </div>
