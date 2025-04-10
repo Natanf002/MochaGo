@@ -14,6 +14,7 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+<<<<<<< HEAD
 
 
 // Automatically attach token to all requests
@@ -27,3 +28,5 @@ axios.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+=======
+>>>>>>> upstream/main
