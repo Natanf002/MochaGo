@@ -1,24 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaEnvelope, FaPhone, FaCreditCard, FaUpload } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaCreditCard, FaUpload, FaSave } from 'react-icons/fa';
 import axios from '../api/axios';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    async function fetchUser() {
+    const fetchProfile = async () => {
       try {
         const res = await axios.get('/auth/me');
-        setUser(res.data);
+        setEmail(res.data.email || '');
+        setPhone(res.data.phone || '');
+        setPaymentMethod(res.data.payment_method || '');
+        setProfilePhotoUrl(res.data.profile_photo || '');
       } catch (err) {
-        console.error('Failed to fetch user:', err);
+        console.error(err);
       }
-    }
-
-    fetchUser();
+    };
+    fetchProfile();
   }, []);
+
+  const handleUpdateProfile = async () => {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('payment_method', paymentMethod);
+    if (profilePhoto) formData.append('profile_photo', profilePhoto);
+
+    try {
+      const res = await axios.put('/auth/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setMessage('Profile updated successfully!');
+      if (res.data.profile_photo) setProfilePhotoUrl(res.data.profile_photo);
+    } catch (err) {
+      console.error(err);
+      setMessage('Error updating profile.');
+    }
+  };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', width: '100vw' }}>
@@ -28,27 +55,49 @@ export default function Settings() {
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Email Address</label>
-          <div style={inputBoxStyle}>{user?.email || 'Loading...'}</div>
-          <button style={buttonStyle}><FaEnvelope style={iconStyle} /> Change Email</button>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputBoxStyle}
+          />
         </div>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Phone Number</label>
-          <div style={inputBoxStyle}>{user?.phone ? `Ending in ${user.phone.slice(-4)}` : 'Loading...'}</div>
-          <button style={buttonStyle}><FaPhone style={iconStyle} /> Change Phone Number</button>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={inputBoxStyle}
+          />
         </div>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Payment Method</label>
-          <div style={inputBoxStyle}>Card Ending in 0123</div>
-          <button style={buttonStyle}><FaCreditCard style={iconStyle} /> Change Payment Method</button>
+          <input
+            type="text"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            style={inputBoxStyle}
+          />
         </div>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Profile Photo</label>
-          <div style={inputBoxStyle}>Profile-Photo.jpg</div>
-          <button style={buttonStyle}><FaUpload style={iconStyle} /> Upload Photo</button>
+          <input
+            type="file"
+            accept="image/png"
+            onChange={(e) => setProfilePhoto(e.target.files[0])}
+            style={{ marginTop: '0.5rem', color: '#ccc' }}
+          />
         </div>
+
+        <button onClick={handleUpdateProfile} style={buttonStyle}>
+          <FaSave style={iconStyle} /> Save Changes
+        </button>
+
+        {message && <p style={{ marginTop: '1rem', color: '#ccc' }}>{message}</p>}
       </div>
 
       {/* RIGHT SIDE – Profile Summary */}
@@ -90,27 +139,34 @@ export default function Settings() {
             margin: '0 auto',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
+            overflow: 'hidden'
           }}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              style={{ width: '60%', height: '60%', color: '#333' }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+            {profilePhotoUrl ? (
+              <img
+                src={`http://localhost:5050/${profilePhotoUrl}`}
+                alt="Profile"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-            </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                style={{ width: '60%', height: '60%', color: '#333' }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                />
+              </svg>
+            )}
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>
-            {user?.first_name || 'John'} {user?.last_name || 'Doe'}
-          </h2>
-          <p style={{ color: '#ddd' }}>{user?.email || 'johndoe@email.com'}</p>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>John Doe</h2>
+          <p style={{ color: '#ddd' }}>{email}</p>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', width: '100%' }}>
@@ -126,7 +182,6 @@ export default function Settings() {
   );
 }
 
-// STYLES
 const inputBoxStyle = {
   backgroundColor: '#D9CDB4',
   padding: '1rem',
