@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+<<<<<<< HEAD
+import { useAuth } from '../context/AuthContext';
+=======
+>>>>>>> upstream/main
 import matchaImage from '../assets/matcha-cup.png';
 
 export default function MainEvent() {
   const [menuOpen, setMenuOpen] = useState(false);
+<<<<<<< HEAD
+  const { user, logout } = useAuth();
+=======
   const username = 'John';
+>>>>>>> upstream/main
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
@@ -34,7 +42,11 @@ export default function MainEvent() {
           flexWrap: 'wrap',
           position: 'relative'
         }}>
+<<<<<<< HEAD
+          {/* Menu Dropdown */}
+=======
           {/* OnClick Menu Dropdown */}
+>>>>>>> upstream/main
           <div style={{ position: 'relative' }}>
             <span style={{ cursor: 'pointer' }} onClick={toggleMenu}>Menu ⌄</span>
             {menuOpen && (
@@ -72,7 +84,11 @@ export default function MainEvent() {
           </Link>
 
           <Link to="/orders" style={{ color: '#333', fontWeight: 'bold', textDecoration: 'none' }}>
+<<<<<<< HEAD
+            👤 {user?.first_name || 'User'}
+=======
             👤 {username}
+>>>>>>> upstream/main
           </Link>
 
           <Link to="/checkout" style={{
@@ -86,6 +102,21 @@ export default function MainEvent() {
           }}>
             🛒 Checkout
           </Link>
+<<<<<<< HEAD
+
+          <button onClick={logout} style={{
+            backgroundColor: 'white',
+            color: '#6A7D4F',
+            borderRadius: '20px',
+            padding: '0.5rem 1rem',
+            fontWeight: 'bold',
+            border: 'none',
+            cursor: 'pointer'
+          }}>
+            Logout
+          </button>
+=======
+>>>>>>> upstream/main
         </nav>
       </header>
 
@@ -94,7 +125,10 @@ export default function MainEvent() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
+<<<<<<< HEAD
+=======
         position: 'relative',
+>>>>>>> upstream/main
         width: '100%',
         height: 'calc(100% - 100px)',
         overflow: 'hidden'
@@ -106,9 +140,12 @@ export default function MainEvent() {
             height: '700px',
             backgroundColor: '#5A6F44',
             borderRadius: '50%',
+<<<<<<< HEAD
+=======
             position: 'relative',
             top: '0',
             zIndex: 0,
+>>>>>>> upstream/main
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center'
@@ -117,11 +154,18 @@ export default function MainEvent() {
               src={matchaImage}
               alt="Matcha Cup"
               style={{
+<<<<<<< HEAD
+                width: '85%',
+                height: 'auto',
+                objectFit: 'contain',
+                transform: 'translateX(75px)'
+=======
                 width: '85%', // fill most of the ellipse
                 height: 'auto',
                 zIndex: 1,
                 objectFit: 'contain',
                 transform: 'translateX(75px)' // move image 30px to the right
+>>>>>>> upstream/main
               }}
             />
           </div>
@@ -133,7 +177,10 @@ export default function MainEvent() {
           paddingLeft: '2rem',
           paddingTop: '2rem',
           color: '#2F2F2F',
+<<<<<<< HEAD
+=======
           zIndex: 2
+>>>>>>> upstream/main
         }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
             Today’s Event

@@ -10,7 +10,12 @@ export default function Settings() {
   const [phone, setPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [profilePhoto, setProfilePhoto] = useState(null);
+<<<<<<< HEAD
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
+  const [name, setName] = useState('John Doe');
+=======
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
+>>>>>>> upstream/main
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -20,7 +25,12 @@ export default function Settings() {
         setEmail(res.data.email || '');
         setPhone(res.data.phone || '');
         setPaymentMethod(res.data.payment_method || '');
+<<<<<<< HEAD
+        setProfilePhotoPreview(res.data.profile_photo || '');
+        setName(`${res.data.first_name || 'John'} ${res.data.last_name || 'Doe'}`);
+=======
         setProfilePhotoUrl(res.data.profile_photo || '');
+>>>>>>> upstream/main
       } catch (err) {
         console.error(err);
       }
@@ -36,11 +46,25 @@ export default function Settings() {
     if (profilePhoto) formData.append('profile_photo', profilePhoto);
 
     try {
+<<<<<<< HEAD
+      const response = await axios.put('/auth/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setMessage('Profile updated successfully!');
+      if (response.data?.updatedPhotoPath) {
+        setProfilePhotoPreview(response.data.updatedPhotoPath);
+      } else {
+        // Refetch to get updated image path
+        const res = await axios.get('/auth/me');
+        setProfilePhotoPreview(res.data.profile_photo || '');
+      }
+=======
       const res = await axios.put('/auth/me', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessage('Profile updated successfully!');
       if (res.data.profile_photo) setProfilePhotoUrl(res.data.profile_photo);
+>>>>>>> upstream/main
     } catch (err) {
       console.error(err);
       setMessage('Error updating profile.');
@@ -88,7 +112,21 @@ export default function Settings() {
           <input
             type="file"
             accept="image/png"
+<<<<<<< HEAD
+            onChange={(e) => {
+              const file = e.target.files[0];
+              setProfilePhoto(file);
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  setProfilePhotoPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+              }
+            }}
+=======
             onChange={(e) => setProfilePhoto(e.target.files[0])}
+>>>>>>> upstream/main
             style={{ marginTop: '0.5rem', color: '#ccc' }}
           />
         </div>
@@ -140,15 +178,29 @@ export default function Settings() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+<<<<<<< HEAD
+            overflow: 'hidden',
+          }}>
+            {profilePhotoPreview ? (
+              <img
+                src={profilePhotoPreview.startsWith('/uploads/') ? `http://localhost:5050${profilePhotoPreview}` : profilePhotoPreview}
+=======
             overflow: 'hidden'
           }}>
             {profilePhotoUrl ? (
               <img
                 src={`http://localhost:5050/${profilePhotoUrl}`}
+>>>>>>> upstream/main
                 alt="Profile"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             ) : (
+<<<<<<< HEAD
+              <span style={{ color: '#333' }}>Profile</span>
+            )}
+          </div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>{name}</h2>
+=======
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -166,6 +218,7 @@ export default function Settings() {
             )}
           </div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginTop: '1rem' }}>John Doe</h2>
+>>>>>>> upstream/main
           <p style={{ color: '#ddd' }}>{email}</p>
         </div>
 
@@ -222,4 +275,8 @@ const dividerStyle = {
   width: '60%',
   border: 'none',
   borderBottom: '1px solid #ccc'
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> upstream/main

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
+
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+=======
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+>>>>>>> upstream/main
 
 import Login from './pages/Login';
 import Signup from './pages/SignUp';
@@ -10,6 +16,42 @@ import Settings from './pages/Settings';
 import OrderHistory from './pages/OrderHistory';
 
 function ProtectedRoute({ children }) {
+<<<<<<< HEAD
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  return isAuthenticated ? children : <Navigate to="/login" state={{ from: location }} replace />;
+}
+
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
+  return (
+    <Routes>
+      <Route path="/" element={<MainEvent />} />
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        path="/signup"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Signup />}
+      />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
+=======
   const isAuthenticated = localStorage.getItem('mochago_token');
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
@@ -58,5 +100,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+>>>>>>> upstream/main
   );
 }
