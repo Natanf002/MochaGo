@@ -2,10 +2,22 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import multer from 'multer';
 import db from '../models/db.js';
+import { authenticateToken } from '../middleware/auth.js'; // move token logic into middleware
 
 const router = express.Router();
-const SECRET = 'super_secret_key'; // Replace with env var in production
+const SECRET = 'super_secret_key';
+
+// Setup multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'server/uploads/'),
+  filename: (req, file, cb) => {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+const upload = multer({ storage });
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -46,29 +58,45 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// VERIFY TOKEN (Middleware)
-export function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
-
-  jwt.verify(token, SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-}
-
-// GET current user
+// GET Current User
 router.get('/me', authenticateToken, async (req, res) => {
-    try {
-      const [rows] = await db.query('SELECT first_name, last_name, email, phone FROM users WHERE id = ?', [req.user.id]);
-      if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
-      res.json(rows[0]);
-    } catch (err) {
-      res.status(500).json({ message: 'Server error' });
+  try {
+    const [rows] = await db.query(
+      'SELECT first_name, last_name, email, phone, payment_method, profile_photo FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// UPDATE USER
+router.put('/me', authenticateToken, upload.single('profile_photo'), async (req, res) => {
+  const { email, phone, payment_method } = req.body;
+  const profile_photo = req.file ? `/uploads/${req.file.filename}` : null;
+
+  try {
+    let updateFields = 'email = ?, phone = ?, payment_method = ?';
+    let values = [email, phone, payment_method];
+
+    if (profile_photo) {
+      updateFields += ', profile_photo = ?';
+      values.push(profile_photo);
     }
-  });
-  
+
+    values.push(req.user.id);
+
+    await db.query(
+      `UPDATE users SET ${updateFields} WHERE id = ?`,
+      values
+    );
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Update failed', error: err.message });
+  }
+});
 
 export default router;

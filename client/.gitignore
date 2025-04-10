@@ -13,6 +13,7 @@ dist
 .vite
 dist-ssr
 *.local
+/server/uploads/*
 
 # Editor directories and files
 .vscode/*
