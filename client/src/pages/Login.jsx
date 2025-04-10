@@ -1,20 +1,13 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-=======
-import { Link, useNavigate } from "react-router-dom";
->>>>>>> upstream/main
 import loginBg from "../assets/login-background-img.png";
 import axios from "../api/axios"; // make sure axios instance is configured correctly.
 
 const Login = () => {
-<<<<<<< HEAD
   const { login } = useAuth();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
-=======
->>>>>>> upstream/main
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -27,12 +20,8 @@ const Login = () => {
       const token = response.data.token;
       localStorage.setItem("mochago_token", token);
       window.dispatchEvent(new Event("storage")); // triggers reactivity
-<<<<<<< HEAD
       login(token);
       navigate(from); // redirect to previous page
-=======
-      navigate("/"); // redirect to MainEvent
->>>>>>> upstream/main
     } catch (err) {
       setMessage("Invalid credentials. Try again.");
     }
