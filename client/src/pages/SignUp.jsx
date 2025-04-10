@@ -100,7 +100,6 @@ export default function SignUp() {
             in one delightful little cup.
           </p>
 
-<<<<<<< HEAD
           <Link to="/login">
             <button style={{
               backgroundColor: 'white',
@@ -116,19 +115,6 @@ export default function SignUp() {
             </button>
           </Link>
 
-=======
-          <Link to="/login" style={{
-            textDecoration: 'none',
-            backgroundColor: 'white',
-            color: '#6A7D4F',
-            padding: '0.75rem 2rem',
-            borderRadius: '30px',
-            fontWeight: 'bold',
-            fontSize: '1.1rem'
-          }}>
-            Log In
-          </Link>
->>>>>>> upstream/main
         </div>
       </div>
     </div>
@@ -155,8 +141,4 @@ const buttonStyle = {
   fontWeight: 'bold',
   cursor: 'pointer',
   marginTop: '1rem'
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> upstream/main

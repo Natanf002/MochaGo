@@ -1,8 +1,5 @@
 import { useState } from 'react';
-<<<<<<< HEAD
 import axios from '../api/axios';
-=======
->>>>>>> upstream/main
 import { Link } from 'react-router-dom';
 import bulb from '../assets/lightbulb.png';
 
@@ -13,11 +10,7 @@ export default function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-<<<<<<< HEAD
       await axios.post('/auth/forgot-password', { email });
-=======
-      // await axios.post('/auth/forgot-password', { email });
->>>>>>> upstream/main
       setMessage('Password reset instructions sent!');
     } catch (err) {
       setMessage('Failed to send reset link');
