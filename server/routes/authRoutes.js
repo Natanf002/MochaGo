@@ -3,21 +3,38 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
 import db from '../models/db.js';
-import { authenticateToken } from '../middleware/auth.js'; // move token logic into middleware
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 const SECRET = 'super_secret_key';
 
-// Setup multer
+// Ensure upload directory exists
+const uploadPath = path.join('server', 'uploads');
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+// Multer config with file size and type validation
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'server/uploads/'),
+  destination: (req, file, cb) => cb(null, uploadPath),
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${file.originalname}`;
     cb(null, uniqueName);
   },
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== 'image/png') {
+      return cb(new Error('Only PNG files are allowed'));
+    }
+    cb(null, true);
+  }
+});
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -73,13 +90,30 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 // UPDATE USER
-router.put('/me', authenticateToken, upload.single('profile_photo'), async (req, res) => {
-  const { email, phone, payment_method } = req.body;
+router.put('/me', authenticateToken, (req, res, next) => {
+  upload.single('profile_photo')(req, res, function (err) {
+    if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
+  const { first_name, last_name, email, phone, payment_method } = req.body;
   const profile_photo = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
-    let updateFields = 'email = ?, phone = ?, payment_method = ?';
-    let values = [email, phone, payment_method];
+    if (profile_photo) {
+      const [[current]] = await db.query('SELECT profile_photo FROM users WHERE id = ?', [req.user.id]);
+      if (current?.profile_photo) {
+        const oldPath = path.join('server', current.profile_photo);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    let updateFields = 'first_name = ?, last_name = ?, email = ?, phone = ?, payment_method = ?';
+    let values = [first_name, last_name, email, phone, payment_method];
 
     if (profile_photo) {
       updateFields += ', profile_photo = ?';
@@ -88,13 +122,14 @@ router.put('/me', authenticateToken, upload.single('profile_photo'), async (req,
 
     values.push(req.user.id);
 
-    await db.query(
-      `UPDATE users SET ${updateFields} WHERE id = ?`,
-      values
-    );
+    await db.query(`UPDATE users SET ${updateFields} WHERE id = ?`, values);
 
-    res.json({ message: 'Profile updated successfully' });
+    res.json({
+      message: 'Profile updated successfully',
+      updatedPhotoPath: profile_photo || undefined
+    });
   } catch (err) {
+    console.error('Update failed:', err);
     res.status(500).json({ message: 'Update failed', error: err.message });
   }
 });

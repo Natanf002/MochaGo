@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEnvelope, FaPhone, FaCreditCard, FaUpload, FaSave } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from '../api/axios';
 
 export default function Settings() {
   const navigate = useNavigate();
 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
-  const [name, setName] = useState('John Doe');
-  const [message, setMessage] = useState('');
+  const [name, setName] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get('/auth/me');
+        setFirstName(res.data.first_name || '');
+        setLastName(res.data.last_name || '');
         setEmail(res.data.email || '');
         setPhone(res.data.phone || '');
         setPaymentMethod(res.data.payment_method || '');
@@ -25,6 +30,7 @@ export default function Settings() {
         setName(`${res.data.first_name || 'John'} ${res.data.last_name || 'Doe'}`);
       } catch (err) {
         console.error(err);
+        toast.error('Failed to load profile.');
       }
     };
     fetchProfile();
@@ -32,6 +38,8 @@ export default function Settings() {
 
   const handleUpdateProfile = async () => {
     const formData = new FormData();
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
     formData.append('email', email);
     formData.append('phone', phone);
     formData.append('payment_method', paymentMethod);
@@ -41,25 +49,52 @@ export default function Settings() {
       const response = await axios.put('/auth/me', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setMessage('Profile updated successfully!');
-      if (response.data?.updatedPhotoPath) {
-        setProfilePhotoPreview(response.data.updatedPhotoPath);
-      } else {
-        // Refetch to get updated image path
-        const res = await axios.get('/auth/me');
-        setProfilePhotoPreview(res.data.profile_photo || '');
+
+      toast.success('Profile updated successfully!');
+      setName(`${firstName} ${lastName}`);
+
+      if (profilePhoto) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfilePhotoPreview(reader.result);
+        };
+        reader.readAsDataURL(profilePhoto);
+      } else if (response.data?.updatedPhotoPath) {
+        setProfilePhotoPreview(`http://localhost:5050${response.data.updatedPhotoPath}`);
       }
     } catch (err) {
       console.error(err);
-      setMessage('Error updating profile.');
+      toast.error('Error updating profile.');
     }
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', width: '100vw' }}>
+      <ToastContainer />
+
       {/* LEFT SIDE – Settings Form */}
       <div style={{ flex: 2, backgroundColor: '#050505', color: 'white', padding: '3rem' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem' }}>Settings</h1>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <label>First Name</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            style={inputBoxStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <label>Last Name</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            style={inputBoxStyle}
+          />
+        </div>
 
         <div style={{ marginBottom: '2rem' }}>
           <label>Email Address</label>
@@ -98,13 +133,15 @@ export default function Settings() {
             accept="image/png"
             onChange={(e) => {
               const file = e.target.files[0];
-              setProfilePhoto(file);
-              if (file) {
+              if (file && file.size <= 1024 * 1024) {
+                setProfilePhoto(file);
                 const reader = new FileReader();
                 reader.onloadend = () => {
                   setProfilePhotoPreview(reader.result);
                 };
                 reader.readAsDataURL(file);
+              } else {
+                toast.error('Only PNG files under 1MB allowed.');
               }
             }}
             style={{ marginTop: '0.5rem', color: '#ccc' }}
@@ -114,8 +151,6 @@ export default function Settings() {
         <button onClick={handleUpdateProfile} style={buttonStyle}>
           <FaSave style={iconStyle} /> Save Changes
         </button>
-
-        {message && <p style={{ marginTop: '1rem', color: '#ccc' }}>{message}</p>}
       </div>
 
       {/* RIGHT SIDE – Profile Summary */}
