@@ -1,5 +1,7 @@
-
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import Login from './pages/Login';
@@ -42,6 +44,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
