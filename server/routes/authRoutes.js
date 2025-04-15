@@ -134,4 +134,28 @@ router.put('/me', authenticateToken, (req, res, next) => {
   }
 });
 
+// FORGOT PASSWORD
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  try {
+    const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Simulate sending reset email — in production you would email a reset link/token here
+    console.log(`Reset password requested for: ${email}`);
+
+    return res.status(200).json({ message: 'Reset instructions sent' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+
 export default router;

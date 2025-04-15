@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from '../api/axios';
 import { Link } from 'react-router-dom';
 import bulb from '../assets/lightbulb.png';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -9,11 +11,20 @@ export default function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     try {
       await axios.post('/auth/forgot-password', { email });
       setMessage('Password reset instructions sent!');
+      toast.success('Password reset instructions sent!');
     } catch (err) {
       setMessage('Failed to send reset link');
+      toast.error('Failed to send reset link. Please try again.');
     }
   };
 
@@ -34,9 +45,9 @@ export default function ForgotPassword() {
           src={bulb}
           alt="lightbulb"
           style={{
-            height: '100%',
+            maxHeight: '90%',
             width: 'auto',
-            objectFit: 'cover',
+            objectFit: 'contain',
           }}
         />
       </div>
