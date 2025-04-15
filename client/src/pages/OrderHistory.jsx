@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import latteSandwich from "../assets/latte-sandwich.png";
 import americano from "../assets/americano.png";
 import latte from "../assets/latte.png";
@@ -120,14 +121,15 @@ export default function OrderHistoryPage() {
         <h2 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>John Doe</h2>
         <p style={{ color: "#eee", marginBottom: "2rem" }}>johndoe@gmail.com</p>
 
-        <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "center", gap: "1rem" }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', width: '100%' }}>
           <hr style={dividerStyle} />
-          <p style={navLinkStyle}>Settings</p>
+          <Link to="/settings" style={navLinkStyle}>Settings</Link>
           <hr style={dividerStyle} />
-          <p style={navLinkStyle}>Order History</p>
+          <Link to="/orders" style={navLinkStyle}>Order History</Link>
           <hr style={dividerStyle} />
-          <p style={navLinkStyle}>Reset Password</p>
-        </div>
+          <Link to="/forgot-password" style={navLinkStyle}>Reset Password</Link>
+        </nav>
+
       </div>
     </div>
   );
